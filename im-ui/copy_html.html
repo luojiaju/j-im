@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Paste Listener</title>
+</head>
+<body>
+<textarea id="textarea" cols="30" rows="10"></textarea>
+<div id="imageContainer"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const textarea = document.getElementById('textarea');
+        const imageContainer = document.getElementById('imageContainer');
+
+        textarea.addEventListener('paste', function (event) {
+            const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            const imagePromises = [];
+            for (const item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    const blob = item.getAsFile();
+                    const reader = new FileReader();
+                    const promise = new Promise((resolve, reject) => {
+                        reader.onload = function (e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.maxWidth = '100%';
+                            imageContainer.appendChild(img);
+                            resolve();
+                        };
+                    });
+                    reader.readAsDataURL(blob);
+                    imagePromises.push(promise);
+                }
+            }
+            Promise.all(imagePromises).then(() => {
+                imageContainer.appendChild(document.createElement('br')); // Add a line break after all images
+            });
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Box</title>
+    <style>
+        #chat-box {
+            display: flex;
+            flex-direction: column-reverse; /* 将消息从底部开始堆叠 */
+            height: 300px; /* 聊天框高度 */
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: auto; /* 垂直滚动条 */
+        }
+
+        .message {
+            margin-bottom: 10px; /* 消息之间的间距 */
+            background-color: #f0f0f0;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="chat-box">
+    <!-- 消息将会动态插入到这里 -->
+</div>
+
+<script >
+    // 模拟新消息
+    function simulateNewMessage() {
+        const newMessage = document.createElement('div');
+        newMessage.classList.add('message');
+        newMessage.textContent = '这是一条新消息';
+        document.getElementById('chat-box').appendChild(newMessage);
+    }
+
+    // 模拟每隔一段时间插入新消息
+    setInterval(simulateNewMessage, 5000); // 5秒钟插入一条新消息
+
+    // 模拟页面加载时插入一万条消息
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatBox = document.getElementById('chat-box');
+        for (let i = 0; i < 10; i++) {
+            const message = document.createElement('div');
+            message.classList.add('message');
+            message.textContent = '这是第 ' + (i + 1) + ' 条消息';
+            chatBox.append(message);
+        }
+    });
+
+</script>
+</body>
+</html>

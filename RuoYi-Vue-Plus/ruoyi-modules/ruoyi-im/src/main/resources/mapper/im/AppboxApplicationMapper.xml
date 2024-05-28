@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.dromara.im.mapper.AppboxApplicationMapper">
+
+    <resultMap id="ResultMapVo" type="org.dromara.im.domain.vo.AppboxApplicationVo">
+        <result property="id" column="id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="appName" column="app_name"/>
+        <result property="iconUrl" column="icon_url"/>
+        <result property="classesId" column="classes_id"/>
+        <result property="popularity" column="popularity"/>
+        <result property="pv" column="pv"/>
+        <result property="uv" column="uv"/>
+        <result property="cover" column="cover"/>
+        <result property="coverUrl" column="cover_url"/>
+        <result property="channelStatus" column="channel_status"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="channelType" column="channel_type"/>
+        <result property="assign" column="assign"/>
+        <result property="permission" column="permission"/>
+        <!-- 映射与AppUserVo相关的属性 -->
+        <association property="exteInfo" javaType="org.dromara.im.domain.vo.AppUserVo">
+            <result property="status" column="status"/>
+            <result property="bannedTime" column="banned_time"/>
+            <result property="role" column="role"/>
+        </association>
+    </resultMap>
+
+
+    <select id="selectVoByAppId" resultType="java.lang.String">
+        select ac.user_id
+        from appbox_fixed_app_user_config ac
+                 join appbox_application ap on ac.app_id = ap.id
+        where ap.id = #{appId}
+    </select>
+    <select id="queryAppByUserId"  resultMap="ResultMapVo">
+        select aa.id, aa.parent_id, aa.config_id, aa.app_name,aa. icon_url, aa.cover,aa.assign,aa.channel_type,aa.permission,
+               aa.popularity, aa.pv,aa. uv, aa.channel_status,aa. remark,aa. create_by, aa.create_time,
+               aau.role,aau.banned_time,aau.status
+        from appbos_app_user aau
+                 inner join appbox_application aa on aau.app_id = aa.id
+        where aau.user_id = #{id} and aa.channel_status = 1;
+    </select>
+
+    <select id="getTreeInfo"   resultMap="ResultMapVo">
+        select aa.id, parent_id, config_id, app_name, icon_url, cover, popularity,cover,permission,
+               pv, uv, channel_status, remark, create_by, create_time,assign,channel_type
+        from appbox_application aa  where  aa.id = #{id}
+        union
+        select aa.id, parent_id, config_id, app_name, icon_url, cover, popularity,cover,permission,
+               pv, uv, channel_status, remark, create_by, create_time,assign,channel_type
+        from appbox_application aa  where  aa.parent_id = #{id}
+    </select>
+
+    <select id="getUsersUnderTheApplicationV2" resultType="org.dromara.system.domain.vo.SysUserVo">
+        select * from appbos_app_user aau inner join sys_user su on su.user_id = aau.user_id
+        ${ew.customSqlSegment}
+    </select>
+    <select id="selectUserListByAppBoxChildId" resultType="org.dromara.im.domain.SimpleUser">
+        SELECT su.user_id, su.user_name, su.nick_name, su.user_type, su.email, su.phonenumber, su.sex, su.avatar, su.create_time, su.remark
+        FROM appbox_application aa
+                 INNER JOIN appbos_app_user aau ON aau.app_id = aa.id
+                 INNER JOIN sys_user su ON su.user_id = aau.user_id
+        WHERE aa.id = #{appbox.id}
+          AND aa.parent_id = 0 AND aa.channel_status = 1 limit #{query.pageNum},#{query.pageSize}
+    </select>
+    <select id="selectUserIdListByAppId" resultType="java.lang.Long">
+        SELECT user_id from appbos_app_user  aau  where aau.app_id = #{appId};
+
+    </select>
+    <select id="selectAdminUserIdListByAppId" resultType="java.lang.Long">
+        SELECT user_id from appbos_app_user  aau  where aau.app_id = #{appId} and aau.role = 2;
+    </select>
+</mapper>

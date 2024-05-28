@@ -1,0 +1,68 @@
+version: "3"
+
+services:
+  # docker-compose up -d nginx-web
+  nginx-web:
+    image: nginx:1.23.4
+    restart: always
+    container_name: im-nginx1.23
+    environment:
+      # 时区上海
+      TZ: Asia/Shanghai
+    ports:
+      - "1180:1180"
+      - "1181:1181"
+    volumes:
+      # 证书映射
+      - "$PWD/nginx/cert:/etc/nginx/cert"
+      # 配置文件映射
+      - "$PWD/nginx/conf/nginx.conf:/etc/nginx/nginx.conf"
+      # 页面目录
+      - "$PWD/nginx/html:/usr/share/nginx/html"
+      # 日志目录
+      - "$PWD/nginx/log:/var/log/nginx"
+    privileged: true
+  mysql:
+    image: mysql:8.0.25
+    container_name: im-mysql8.0.25
+    restart: always
+    environment:
+      # 时区上海
+      TZ: Asia/Shanghai
+      # root 密码
+      MYSQL_ROOT_PASSWORD: 123456.ljj
+      # 初始化数据库(后续的初始化sql会在这个库执行)
+      MYSQL_DATABASE: ry-vue
+    ports:
+      - "13306:3306"
+    volumes:
+      # 数据挂载
+      - "$PWD/mysql/data/:/var/lib/mysql/"
+      # 配置挂载
+      - "$PWD/mysql/conf/:/etc/mysql/conf.d/"
+      - "$PWD/mysql/init/:/docker-entrypoint-initdb.d/"
+    command:
+      # 将mysql8.0默认密码策略 修改为 原先 策略 (mysql8.0对其默认策略做了更改 会导致密码无法匹配)
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --explicit_defaults_for_timestamp=true
+      --lower_case_table_names=1
+    privileged: true
+  redis:
+    image: redis:6.0.8
+    container_name: im-redis
+    ports:
+      - "16379:6379"
+    environment:
+      # 时区上海
+      TZ: Asia/Shanghai
+    privileged: true
+  # docker-compose up -d --build im-admin
+  im-admin:
+    build: $PWD/ruoyi-admin
+    container_name: im-admin
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
