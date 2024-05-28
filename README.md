@@ -1,4 +1,4 @@
-![1](https://github.com/luojiaju/j-im/blob/main/images/1.gif)
+![1](https://github.com/luojiaju/j-im/blob/main/images/2.gif)
  ![1](https://github.com/luojiaju/j-im/blob/main/images/screenshots.gif)
 ![1](https://github.com/luojiaju/j-im/blob/main/images/1.png)
 
